@@ -14,20 +14,16 @@ test = {
           ...     else:
           ...         return 25
           >>> xk(10, 10)
-          07fa61723879693a70211246239795ee
-          # locked
+          23
           >>> xk(10, 6)
-          07fa61723879693a70211246239795ee
-          # locked
+          23
           >>> xk(4, 6)
-          3dcab9fe3b2b966fc0dea4bee36cfbe4
-          # locked
+          6
           >>> xk(0, 0)
-          dc549763a66595fb8475050be281005d
-          # locked
+          25
           """,
           'hidden': False,
-          'locked': True,
+          'locked': False,
           'multiline': False
         },
         {
@@ -42,20 +38,16 @@ test = {
           ...     else:
           ...         print("nothing")
           >>> how_big(7)
-          fe4028bb37030ad778842d40ac93e700
-          # locked
+          'big'
           >>> how_big(12)
-          260c9a22fd4f3d2d25e08b6a0cd9d10e
-          # locked
+          huge
           >>> how_big(1)
-          fdb47b226224360303fcfb56870d356a
-          # locked
+          small
           >>> how_big(-1)
-          d8e1cdfd7c1e2f4f4230deca5308e7c7
-          # locked
+          nothing
           """,
           'hidden': False,
-          'locked': True,
+          'locked': False,
           'multiline': False
         }
       ],
