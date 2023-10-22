@@ -1,6 +1,7 @@
 """CS 61A presents Ants Vs. SomeBees."""
 
 import random
+from math import pow
 from ucb import main, interact, trace
 from collections import OrderedDict
 
@@ -79,6 +80,7 @@ class Insect:
 
         gamestate -- The GameState, used to access game state information.
         """
+        pass
 
     def death_callback(self):
         # overriden by the gui
@@ -108,6 +110,7 @@ class Ant(Insect):
     is_container = False
     is_waterproof=False
     is_doubled=False
+    blocks_path=True
     # ADD CLASS ATTRIBUTES HERE
 
     def __init__(self, health=1):
@@ -532,7 +535,7 @@ class Bee(Insect):
         """Return True if this Bee cannot advance to the next Place."""
         # Special handling for NinjaAnt
         # BEGIN Problem Optional 1
-        return self.place.ant is not None
+        return self.place.ant and self.place.ant.blocks_path
         # END Problem Optional 1
 
     def action(self, gamestate):
@@ -569,15 +572,22 @@ class NinjaAnt(Ant):
     name = 'Ninja'
     damage = 1
     food_cost = 5
+    blocks_path=False
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem Optional 1
-    implemented = False   # Change to True to view in the GUI
+    implemented = True   # Change to True to view in the GUI
     # END Problem Optional 1
 
     def action(self, gamestate):
         # BEGIN Problem Optional 1
         "*** YOUR CODE HERE ***"
+        cur_place=self.place
+        bees=cur_place.bees[:]
+        for bee in bees:
+            bee.reduce_health(self.damage)
         # END Problem Optional 1
+        
+
 
 ############
 # Statuses #
@@ -589,14 +599,37 @@ class SlowThrower(ThrowerAnt):
 
     name = 'Slow'
     food_cost = 6
+    damage=0
     # BEGIN Problem EC
-    implemented = False   # Change to True to view in the GUI
+    implemented = True   # Change to True to view in the GUI
     # END Problem EC
 
+    def __init__(self, health=1):
+        super().__init__(health)
+        self.ant_slowed=[]
+        
     def throw_at(self, target):
 
         # BEGIN Problem EC
         "*** YOUR CODE HERE ***"
+        if target:
+            target.slow_round=5
+            self.ant_slowed.append(target)
+            
+    def action(self,gamestate):
+        def slow_bee(bee):
+            def f(gamestate):
+                if gamestate.time%2==1 and bee.slow_round>=0:
+                    bee.slow_round-=1
+                    return Insect.action(bee,gamestate)
+                else:
+                    bee.slow_round-=1
+                    return Bee.action(bee,gamestate)
+            return f
+        self.throw_at(self.nearest_bee())
+        for bee in self.ant_slowed:
+            bee.action=slow_bee(bee)
+
         # END Problem EC
 
 
@@ -607,7 +640,8 @@ class LaserAnt(ThrowerAnt):
     food_cost = 10
     # OVERRIDE CLASS ATTRIBUTES HERE
     # BEGIN Problem Optional 2
-    implemented = False   # Change to True to view in the GUI
+    implemented = True   # Change to True to view in the GUI
+    damage=2
     # END Problem Optional 2
 
     def __init__(self, health=1):
@@ -616,12 +650,25 @@ class LaserAnt(ThrowerAnt):
 
     def insects_in_front(self):
         # BEGIN Problem Optional 2
-        return {}
+        cur_place=self.place
+        insects={}
+        distance=0
+        self.damage=2
+        self.insects_shot=0
+        while cur_place.entrance.is_hive==False:
+            bees,ant=cur_place.bees[:],cur_place.ant
+            for bee in bees:
+                insects[bee]=distance
+            if ant and not isinstance(ant,LaserAnt):
+                insects[ant]=distance
+            distance+=1
+            cur_place=cur_place.entrance
+        return insects
         # END Problem Optional 2
 
     def calculate_damage(self, distance):
         # BEGIN Problem Optional 2
-        return 0
+        return max(0,self.damage-0.25*distance-0.0625*self.insects_shot)
         # END Problem Optional 2
 
     def action(self, gamestate):
@@ -665,9 +712,11 @@ class NinjaBee(Bee):
     assassinate the Queen.
     """
     name = 'NinjaBee'
-
+    
     def blocked(self):
         return False
+
+
 
 
 class Boss(Wasp, Hornet):
