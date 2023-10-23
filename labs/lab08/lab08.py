@@ -125,6 +125,7 @@ def prune_small(t, n):
     >>> t3
     Tree(6, [Tree(1), Tree(3, [Tree(1), Tree(2)])])
     """
+    #note that if we don't use return statement, all the temperate value will not be stored#
     while len(t.branches)>n:
         largest = max([b for b in t.branches],key=lambda x:x.label)
         t.branches.remove(largest)
