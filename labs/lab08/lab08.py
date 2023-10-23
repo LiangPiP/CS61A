@@ -6,9 +6,20 @@ def convert_link(link):
     [1, 2, 3, 4]
     >>> convert_link(Link.empty)
     []
+    >>> link = Link(1, Link(Link(1,Link(2)), Link(3, Link(4))))
+    >>> convert_link(link)
+    [1, 1, 2, 3, 4]
     """
     "*** YOUR CODE HERE ***"
-
+    converted=[]
+    while link!=Link.empty:
+        if type(link.first)==Link:
+            converted.extend(convert_link(link.first))
+        else:
+            converted.append(link.first)
+        link=link.rest
+    return converted
+        
 
 def duplicate_link(link, val):
     """Mutates `link` such that if there is a linked list
@@ -30,7 +41,12 @@ def duplicate_link(link, val):
     Link(1, Link(2, Link(2, Link(2, Link(2, Link(3))))))
     """
     "*** YOUR CODE HERE ***"
-
+    #note that x always points to the start of the linked list#
+    while link!=Link.empty:
+        if link.first==val:
+            link.rest=Link(link.first,link.rest)
+            link=link.rest
+        link=link.rest
 
 def cumulative_mul(t):
     """Mutates t so that each node's label becomes the product of all labels in
@@ -46,6 +62,14 @@ def cumulative_mul(t):
     Tree(5040, [Tree(60, [Tree(3), Tree(4), Tree(5)]), Tree(42, [Tree(7)])])
     """
     "*** YOUR CODE HERE ***"
+    if t.is_leaf==True:
+        pass
+    else:
+        for b in t.branches:
+            cumulative_mul(b)
+            t.label*=b.label
+        
+            
 
 
 def every_other(s):
@@ -66,6 +90,22 @@ def every_other(s):
     Link(4)
     """
     "*** YOUR CODE HERE ***"
+    if s==Link.empty or s.rest==Link.empty or s.rest.rest==Link.empty:
+        pass
+    else:
+        count=0
+        while s!=Link.empty:
+            if count%2==0:
+                s.rest=s.rest.rest
+                if s.rest.rest==Link.empty:
+                    break
+                s=s.rest
+                count+=1
+            else:
+                if s.rest.rest== Link.empty:
+                    s.rest=Link.empty
+                s=s.rest
+                count+=1
 
 
 def prune_small(t, n):
@@ -85,11 +125,11 @@ def prune_small(t, n):
     >>> t3
     Tree(6, [Tree(1), Tree(3, [Tree(1), Tree(2)])])
     """
-    while ___________________________:
-        largest = max(_______________, key=____________________)
-        _________________________
-    for __ in _____________:
-        ___________________
+    while len(t.branches)>n:
+        largest = max([b for b in t.branches],key=lambda x:x.label)
+        t.branches.remove(largest)
+    for b in t.branches:
+        prune_small(b,n)
 
 
 class Link:
