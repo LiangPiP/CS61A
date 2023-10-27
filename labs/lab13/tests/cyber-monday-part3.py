@@ -7,9 +7,9 @@ test = {
         {
           'code': r"""
           sqlite> SELECT * FROM shopping_list;
+          kBook|RestBuy
           GameStation|Hallmart
           uPhone|RestBuy
-          wBook|RestBuy
           """,
           'hidden': False,
           'locked': False,
